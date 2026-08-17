@@ -1,0 +1,11 @@
+extends:
+  - recommended
+
+apis:
+  shipment@v1:
+    root: ./api/shipment-api-openapi.json
+    rules:
+      info-license: off
+      no-server-example.com: off
+      operation-4xx-response: off
+      security-defined: off

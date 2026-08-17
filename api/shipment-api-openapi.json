@@ -1,0 +1,233 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Sendcloud shipment scheduling API",
+    "version": "1.0.0",
+    "description": "The API contract the candidate's backend must implement. Schedule a shipment to be sent later; the backend fires a webhook to `webhook_url` when the timer expires."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8000",
+      "description": "The candidate's backend (port is the candidate's choice; 8000 shown as an example)."
+    }
+  ],
+  "components": {
+    "schemas": {
+      "NewScheduledShipment": {
+        "type": "object",
+        "required": [
+          "name",
+          "city",
+          "country",
+          "shipping_preference",
+          "insured",
+          "hours",
+          "minutes",
+          "seconds",
+          "webhook_url"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "The name of the recipient."
+          },
+          "telephone_number": {
+            "type": "string",
+            "description": "The telephone number of the recipient."
+          },
+          "city": {
+            "type": "string",
+            "description": "The city of the recipient."
+          },
+          "country": {
+            "type": "string",
+            "description": "The country of the recipient. Must be in ISO 3166-1 alpha-2 format.",
+            "enum": ["DE", "ES", "FR", "GB", "IT", "NL", "PT", "US"]
+          },
+          "tax_number": {
+            "type": "string",
+            "description": "The sender's tax number, for customs. Required if `country` is `GB` or `US`."
+          },
+          "export_reason": {
+            "type": "string",
+            "description": "The reason for export, for customs. Required if `country` is `GB` or `US`.",
+            "enum": ["commercial_goods", "documents", "gift"]
+          },
+          "statements": {
+            "type": "string",
+            "description": "Customs statements/declarations. Only relevant if `country` is `GB` or `US`."
+          },
+          "shipping_preference": {
+            "type": "string",
+            "description": "The preferred shipping method.",
+            "enum": ["cheap", "fast", "reliable"]
+          },
+          "insured": {
+            "type": "boolean",
+            "description": "`true` if the shipment should be insured."
+          },
+          "hours": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Hours from now until the shipment should be sent."
+          },
+          "minutes": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Minutes from now until the shipment should be sent."
+          },
+          "seconds": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Seconds from now until the shipment should be sent."
+          },
+          "webhook_url": {
+            "type": "string",
+            "format": "uri",
+            "description": "The URL the backend POSTs to when the timer expires."
+          }
+        }
+      },
+      "ScheduledShipment": {
+        "type": "object",
+        "required": ["id", "time_left"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The scheduled shipment / timer id."
+          },
+          "time_left": {
+            "type": "integer",
+            "minimum": 0,
+            "description": "Seconds until the timer expires. `0` once it has expired/fired."
+          }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/shipments": {
+      "post": {
+        "summary": "Schedule a shipment to be sent later",
+        "description": "Validates the shipment data and schedule, stores the timer durably, and returns the id + seconds remaining. The backend must fire the webhook exactly once when the timer expires, even across process restarts.",
+        "operationId": "createScheduledShipment",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/NewScheduledShipment" },
+              "examples": {
+                "Minimum required fields": {
+                  "value": {
+                    "name": "Jane Doe",
+                    "city": "Amsterdam",
+                    "country": "NL",
+                    "shipping_preference": "fast",
+                    "insured": false,
+                    "hours": 0,
+                    "minutes": 0,
+                    "seconds": 30,
+                    "webhook_url": "https://example.com/webhooks/shipments"
+                  }
+                },
+                "All possible fields (customs)": {
+                  "value": {
+                    "name": "Sherlock Holmes",
+                    "telephone_number": "+447700 123 456",
+                    "city": "London",
+                    "country": "GB",
+                    "tax_number": "NL123456890",
+                    "export_reason": "gift",
+                    "statements": "Definitely not sent by Moriarty.",
+                    "shipping_preference": "reliable",
+                    "insured": true,
+                    "hours": 4,
+                    "minutes": 0,
+                    "seconds": 1,
+                    "webhook_url": "https://example.com/webhooks/shipments"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The shipment was scheduled.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ScheduledShipment" },
+                "examples": {
+                  "Scheduled": {
+                    "value": {
+                      "id": "be18064e-d265-4cb5-9716-34f249029a79",
+                      "time_left": 14401
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input (bad schedule, missing/invalid shipment fields, missing customs fields for GB/US, invalid webhook_url).",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/shipments/{id}": {
+      "get": {
+        "summary": "Get the time left on a scheduled shipment",
+        "operationId": "getScheduledShipment",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string", "format": "uuid" },
+            "description": "The scheduled shipment id."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Seconds remaining (`0` if already expired/fired).",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ScheduledShipment" },
+                "examples": {
+                  "Still counting down": {
+                    "value": {
+                      "id": "be18064e-d265-4cb5-9716-34f249029a79",
+                      "time_left": 645
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "No shipment with that id.",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Error" }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

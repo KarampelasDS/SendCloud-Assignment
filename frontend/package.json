@@ -1,0 +1,28 @@
+{
+  "name": "sendcloud-fullstack-test",
+  "version": "1.0.0",
+  "description": "Sendcloud - fullstack test",
+  "engines": {
+    "node": ">=22.22.3",
+    "npm": ">=10"
+  },
+  "scripts": {
+    "start": "npm run dev",
+    "dev": "vite",
+    "build": "vite build",
+    "prepreview": "npm run build",
+    "preview": "vite preview",
+    "test": "vitest",
+    "api-docs": "redocly preview --project-dir=../api --product=redoc"
+  },
+  "author": "Sendcloud",
+  "license": "MIT",
+  "type": "module",
+  "devDependencies": {
+    "@redocly/cli": "2.31.5",
+    "jsdom": "29.1.1",
+    "vite": "8.0.16",
+    "vitest": "4.1.8",
+    "yaml": "2.9.0"
+  }
+}
