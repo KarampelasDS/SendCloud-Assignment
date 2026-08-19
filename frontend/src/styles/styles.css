@@ -347,3 +347,10 @@ input[type="checkbox"]:focus-visible {
 #customs {
   display: none;
 }
+
+.form_status_ok {
+  color: #2e7d32;
+}
+.form_status_error {
+  color: #c0392b;
+}
