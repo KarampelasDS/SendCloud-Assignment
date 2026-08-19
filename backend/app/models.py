@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import DateTime, func
+from sqlalchemy import DateTime, func, Index, text
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 from app.enums import ShipmentExportReason, ShipmentShippingPreference, ShipmentStatus
@@ -36,3 +36,11 @@ class Shipment(Base):
     statements: Mapped[str | None]
     shipping_preference: Mapped[ShipmentShippingPreference]
     insured: Mapped[bool]
+
+    __table_args__ = (
+        Index(
+            "ix_shipments_pending_fire_at",
+            "fire_at",
+            postgresql_where=text("status = 'pending'"),
+        ),
+    )
