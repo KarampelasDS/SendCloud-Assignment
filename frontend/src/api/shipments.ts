@@ -17,7 +17,7 @@ export async function createShipment(
       const data = await response.json();
       if (data?.error) message = data.error;
     } catch (e) {
-      console.log(e);
+      //console.log(e);
     }
     throw new Error(message);
   }

@@ -33,7 +33,7 @@ function optional(value: FormDataEntryValue | null): string | undefined {
   return text === "" ? undefined : text;
 }
 
-function buildPayload(form: HTMLFormElement): NewScheduledShipment {
+export function buildPayload(form: HTMLFormElement): NewScheduledShipment {
   const data = new FormData(form);
   const country = String(data.get("country") ?? "");
   const needsCustoms = CUSTOMS_COUNTRIES.includes(country);
