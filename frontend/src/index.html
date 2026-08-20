@@ -7,9 +7,25 @@
     <title>Create new shipment | Sendcloud</title>
   </head>
   <body>
+    <dialog class="success_modal" id="success_modal">
+      <div class="success_modal_content">
+        <img src="./assets/sendSuccess.svg" alt="" />
+        <h2>Submitted Successfully!</h2>
+        <p>
+          Your shipment has been scheduled<br />
+          We will update you about its status
+        </p>
+      </div>
+    </dialog>
     <main class="form_container">
       <h1>Create new shipment</h1>
       <form>
+        <p
+          class="form_error"
+          id="form_error"
+          role="status"
+          aria-live="polite"
+        ></p>
         <fieldset>
           <legend><h2>Recipient</h2></legend>
 
@@ -19,7 +35,14 @@
                 <label for="recipient_name"
                   >Name <span class="required">*</span></label
                 >
-                <input type="text" id="recipient_name" name="name" required />
+                <input
+                  type="text"
+                  id="recipient_name"
+                  name="name"
+                  required
+                  minlength="2"
+                  maxlength="100"
+                />
               </div>
 
               <div class="field">
@@ -28,6 +51,8 @@
                 >
                 <input
                   type="tel"
+                  pattern="[0-9+\-\(\)\s]+"
+                  maxlength="20"
                   id="recipient_phone"
                   name="telephone_number"
                 />
@@ -39,7 +64,7 @@
             <div class="row">
               <div class="field">
                 <label for="recipient_country">Country</label>
-                <select id="recipient_country" name="country">
+                <select id="recipient_country" name="country" required>
                   <option value="">Select a country</option>
                 </select>
               </div>
@@ -48,7 +73,14 @@
                 <label for="recipient_city"
                   >City <span class="required">*</span></label
                 >
-                <input type="text" id="recipient_city" name="city" required />
+                <input
+                  type="text"
+                  id="recipient_city"
+                  name="city"
+                  required
+                  minlength="2"
+                  maxlength="100"
+                />
               </div>
             </div>
           </div>
@@ -64,7 +96,13 @@
                   >Tax number <span class="required">*</span></label
                 >
 
-                <input type="text" id="customs_tax_number" name="tax_number" />
+                <input
+                  type="text"
+                  id="customs_tax_number"
+                  name="tax_number"
+                  minlength="2"
+                  maxlength="100"
+                />
               </div>
 
               <div class="field">
@@ -82,7 +120,11 @@
                 <label for="customs_statements"
                   >Statements and declarations</label
                 >
-                <textarea id="customs_statements" name="statements"></textarea>
+                <textarea
+                  id="customs_statements"
+                  name="statements"
+                  maxlength="500"
+                ></textarea>
               </div>
             </div>
           </div>
@@ -188,22 +230,9 @@
 
         <button type="submit" class="submit_btn">
           Send shipment
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 16 16"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-            aria-hidden="true"
-            focusable="false"
-          >
-            <path
-              d="M15.5662 0.175083C15.8818 0.393788 16.0474 0.771834 15.9881 1.14988L13.988 14.1472C13.9412 14.4502 13.7568 14.7158 13.488 14.8658C13.2193 15.0158 12.8974 15.0345 12.613 14.9158L8.87546 13.363L6.7348 15.6781C6.45668 15.9812 6.01917 16.0812 5.63479 15.9312C5.25041 15.7812 5.0004 15.4094 5.0004 14.997V12.3851C5.0004 12.2601 5.04728 12.1414 5.13165 12.0507L10.3692 6.33631C10.5505 6.13947 10.5442 5.83641 10.3567 5.64895C10.1692 5.46149 9.8661 5.44899 9.66922 5.62708L3.31288 11.2728L0.553459 9.89182C0.222204 9.72623 0.00970064 9.39505 0.000325491 9.02637C-0.00904965 8.6577 0.184703 8.31402 0.503458 8.12968L14.5037 0.131342C14.8381 -0.0592432 15.2506 -0.0404971 15.5662 0.175083Z"
-              fill="white"
-            />
-          </svg>
+          <img id="send_icon" src="assets/send.svg" alt="" />
+          <img id="spinner" src="assets/spinner.svg" alt="" />
         </button>
-        <p id="form_status" role="status" aria-live="polite"></p>
       </form>
     </main>
     <script type="module" src="./main.ts"></script>

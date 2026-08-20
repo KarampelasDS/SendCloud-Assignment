@@ -6,8 +6,8 @@ import { COUNTRIES, EXPORT_REASONS, type SelectOption } from "./data/options";
 
 import { initSchedule } from "./form/schedule";
 import { initCustoms } from "./form/customs";
-import { initValidation } from "./form/validation";
 import { initSubmit } from "./form/submit";
+import { initValidation } from "./form/validation";
 
 const form = document.querySelector<HTMLFormElement>("form");
 if (form) {
