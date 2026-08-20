@@ -1,11 +1,10 @@
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from uuid import UUID
 
 from fastapi import Depends, FastAPI
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 
 from app.db import get_db
@@ -29,7 +28,7 @@ async def validation_error_handler(request, err):
 
 @app.post("/shipments", response_model=ScheduledShipmentResponse)
 def create_shipment(payload: NewScheduledShipment, db: Session = Depends(get_db)):
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     fire_at = now + timedelta(
         hours=payload.hours, minutes=payload.minutes, seconds=payload.seconds
     )
@@ -63,6 +62,6 @@ def get_shipment(id: UUID, db: Session = Depends(get_db)):
             status_code=404, content={"error": "No shipment with that id"}
         )
 
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     time_left = max(0, int((shipment.fire_at - now).total_seconds()))
     return ScheduledShipmentResponse(id=shipment.id, time_left=time_left)

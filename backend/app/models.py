@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import DateTime, func, Index, text
+from sqlalchemy import DateTime, Index, func, text
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 from app.enums import ShipmentExportReason, ShipmentShippingPreference, ShipmentStatus

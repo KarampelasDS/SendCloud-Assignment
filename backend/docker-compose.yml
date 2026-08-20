@@ -9,6 +9,31 @@ services:
       - "5433:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U shipments"]
+      interval: 3s
+      retries: 10
+
+  app:
+    build: .
+    command: sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"
+    environment:
+      DATABASE_URL: postgresql+psycopg://shipments:shipments@db:5432/shipments
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  worker:
+    build: .
+    command: "python -m app.worker"
+    environment:
+      DATABASE_URL: postgresql+psycopg://shipments:shipments@db:5432/shipments
+    depends_on:
+      db:
+        condition: service_healthy
+
   adminer:
     image: adminer
     ports:

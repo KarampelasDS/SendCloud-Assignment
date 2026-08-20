@@ -1,6 +1,7 @@
 from uuid import UUID
 
 from pydantic import BaseModel, Field, model_validator
+
 from app.enums import Country, ShipmentExportReason, ShipmentShippingPreference
 
 customs_countries = Country.GB, Country.US
@@ -23,11 +24,10 @@ class NewScheduledShipment(BaseModel):
 
     @model_validator(mode="after")
     def require_customs(self):
-        if self.country in customs_countries:
-            if not self.tax_number or not self.export_reason:
-                raise ValueError(
-                    "tax_number and export_reason are required for the selected destination country"
-                )
+        if self.country in customs_countries and (
+            not self.tax_number or not self.export_reason
+        ):
+            raise ValueError("tax_number and export_reason are required for GB and US")
         return self
 
 
