@@ -14,9 +14,28 @@ services:
       interval: 3s
       retries: 10
 
+  create-test-db:
+    image: postgres:17
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PGPASSWORD: shipments
+    entrypoint:
+      ["sh", "-c", "createdb -h db -U shipments shipments_test || true"]
+
+  migrate:
+    build: .
+    command: alembic upgrade head
+    environment:
+      DATABASE_URL: postgresql+psycopg://shipments:shipments@db:5432/shipments
+    depends_on:
+      db:
+        condition: service_healthy
+
   app:
     build: .
-    command: sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
     environment:
       DATABASE_URL: postgresql+psycopg://shipments:shipments@db:5432/shipments
     ports:
@@ -24,6 +43,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
 
   worker:
     build: .
@@ -33,6 +54,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
 
   adminer:
     image: adminer
