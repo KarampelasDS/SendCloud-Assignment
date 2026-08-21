@@ -58,7 +58,7 @@ There is an OpenAPI specification for the endpoints your backend must implement 
 
 ## How to complete the test
 
-Using [this Figma design](https://www.figma.com/design/6MlvYL85pUHzam1S4is7Ng/Sendcloud-frontend-take-home-test?node-id=0-1&t=KUo1SiV4S6Y1NsRQ-1), build a form to schedule a new shipment. The password for the Figma design is `nacre-table-spout-prune`.
+Using [this Figma design](https://www.figma.com/design/6MlvYL85pUHzam1S4is7Ng/Sendcloud-frontend-take-home-test?node-id=0-1&t=KUo1SiV4S6Y1NsRQ-1), build a form to schedule a new shipment. The password for the Figma design is ``.
 
 You also need to build the backend that receives the data. The OpenAPI specification in the `/api` folder shows you the shape of the request and the responses.
 
