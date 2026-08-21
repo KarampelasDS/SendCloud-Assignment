@@ -1,5 +1,13 @@
 # Sendcloud fullstack test
 
+## My submission
+
+- [Setup instructions](docs/setup.md)
+- [Assumptions and trade-offs](docs/assumptions.md)
+- [Scaling to ~100 timers/second](docs/scaling.md)
+
+---
+
 In this test, we would like you to build a feature that allows a user to schedule a shipment to be sent later. This consists of:
 
 1. A frontend form to schedule a shipment
