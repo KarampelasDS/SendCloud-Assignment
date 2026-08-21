@@ -59,3 +59,14 @@ def test_negative_time_fields(base_payload):
     payload = {**base_payload, "hours": -1}
     with pytest.raises(ValidationError):
         NewScheduledShipment(**payload)
+
+def test_schedule_at_the_limit_is_allowed(base_payload):
+    payload = {**base_payload, "hours": 40 * 24, "minutes": 0, "seconds": 0}
+    NewScheduledShipment(**payload)
+
+
+def test_schedule_too_far_in_the_future_is_rejected(base_payload):
+    payload = {**base_payload, "hours": 40 * 24, "minutes": 0, "seconds": 1}
+
+    with pytest.raises(ValidationError):
+        NewScheduledShipment(**payload)

@@ -6,6 +6,8 @@ from app.enums import Country, ShipmentExportReason, ShipmentShippingPreference
 
 customs_countries = Country.GB, Country.US
 
+max_schedule_seconds = 40 * 24 * 60 * 60 #40 days
+
 
 class NewScheduledShipment(BaseModel):
     name: str
@@ -28,6 +30,13 @@ class NewScheduledShipment(BaseModel):
             not self.tax_number or not self.export_reason
         ):
             raise ValueError("tax_number and export_reason are required for GB and US")
+        return self
+
+    @model_validator(mode="after")
+    def limit_schedule(self):
+        total_seconds = self.hours * 3600 + self.minutes * 60 + self.seconds
+        if total_seconds > max_schedule_seconds:
+            raise ValueError("Scheduled shipments cannot be more than 40 days into the future.")
         return self
 
 

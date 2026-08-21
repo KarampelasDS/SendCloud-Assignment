@@ -60,8 +60,27 @@ describe("schedule control", () => {
     initSchedule(form);
     selectLater(form);
     const dt = form.querySelector<HTMLInputElement>("#schedule_datetime")!;
-    dt.value = "2999-01-01T00:00:00";
+    dt.value = new Date(Date.now() + 5 * 86_400_000).toISOString().slice(0, 19);
     dt.dispatchEvent(new Event("input"));
     expect(dt.getAttribute("aria-invalid")).toBe("false");
   });
+});
+
+test("marks a date beyond the 40 day limit as invalid", () => {
+  const form = setupForm();
+  initSchedule(form);
+  selectLater(form);
+  const dt = form.querySelector<HTMLInputElement>("#schedule_datetime")!;
+  dt.value = new Date(Date.now() + 41 * 86_400_000).toISOString().slice(0, 19);
+  dt.dispatchEvent(new Event("input"));
+  expect(dt.getAttribute("aria-invalid")).toBe("true");
+});
+
+test("sets min and max on the picker when scheduling for later", () => {
+  const form = setupForm();
+  initSchedule(form);
+  selectLater(form);
+  const dt = form.querySelector<HTMLInputElement>("#schedule_datetime")!;
+  expect(dt.min).not.toBe("");
+  expect(dt.max).not.toBe("");
 });

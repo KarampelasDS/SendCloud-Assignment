@@ -1,3 +1,11 @@
+const MAX_SCHEDULE_DAYS = 40;
+const MAX_SCHEDULE_MS = MAX_SCHEDULE_DAYS * 24 * 60 * 60 * 1000;
+
+function toLocalInputValue(date: Date): string {
+  const offsetMs = date.getTimezoneOffset() * 60_000;
+  return new Date(date.getTime() - offsetMs).toISOString().slice(0, 19);
+}
+
 export function initSchedule(form: HTMLFormElement): void {
   const scheduleLater = form.querySelector<HTMLInputElement>("#schedule_later");
   const scheduleFields = form.querySelector<HTMLElement>("#schedule_fields");
@@ -40,6 +48,14 @@ export function initSchedule(form: HTMLFormElement): void {
       setMessage("Please select a date and time.", false);
     } else if (new Date(dateTimePicker.value).getTime() <= Date.now()) {
       setMessage("The date must be in the future.", false);
+    } else if (
+      new Date(dateTimePicker.value).getTime() >
+      Date.now() + MAX_SCHEDULE_MS
+    ) {
+      setMessage(
+        `Shipments can be scheduled at most ${MAX_SCHEDULE_DAYS} days ahead.`,
+        false,
+      );
     } else {
       setMessage("", true);
     }
@@ -49,6 +65,11 @@ export function initSchedule(form: HTMLFormElement): void {
     const later = scheduleLater.checked;
     scheduleFields.style.display = later ? "flex" : "none";
     dateTimePicker.required = later;
+    const now = new Date();
+    dateTimePicker.min = toLocalInputValue(now);
+    dateTimePicker.max = toLocalInputValue(
+      new Date(now.getTime() + MAX_SCHEDULE_MS),
+    );
     scheduleSummary.textContent = later
       ? "Your shipment will be sent on the selected date."
       : "Your shipment will be sent immediately.";

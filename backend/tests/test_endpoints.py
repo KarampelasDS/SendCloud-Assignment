@@ -96,3 +96,20 @@ def test_get_shipment_not_found(client):
 
     assert response.status_code == 404
     assert response.json() == {"error": "No shipment with that id"}
+
+
+def test_schedule_too_far_in_the_future_is_rejected(client):
+    response = client.post("/shipments", json={
+        "name": "Jane Doe",
+        "city": "Amsterdam",
+        "country": "NL",
+        "shipping_preference": "fast",
+        "insured": False,
+        "hours": 10**9,
+        "minutes": 0,
+        "seconds": 5,
+        "webhook_url": "https://example.com/webhook",
+    })
+
+    assert response.status_code == 400
+    assert "error" in response.json()
