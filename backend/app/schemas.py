@@ -6,7 +6,7 @@ from app.enums import Country, ShipmentExportReason, ShipmentShippingPreference
 
 customs_countries = Country.GB, Country.US
 
-max_schedule_seconds = 40 * 24 * 60 * 60 #40 days
+max_schedule_seconds = 40 * 24 * 60 * 60  # 40 days
 
 
 class NewScheduledShipment(BaseModel):
@@ -26,6 +26,11 @@ class NewScheduledShipment(BaseModel):
 
     @model_validator(mode="after")
     def require_customs(self):
+        """Require customs fields for GB and US.
+
+        The rule is one directional: these fields are required for those countries,
+        but supplying them for any other country is allowed and simply ignored.
+        """
         if self.country in customs_countries and (
             not self.tax_number or not self.export_reason
         ):
@@ -34,9 +39,16 @@ class NewScheduledShipment(BaseModel):
 
     @model_validator(mode="after")
     def limit_schedule(self):
+        """Reject schedules beyond the maximum window.
+
+        As well as being a sensible bound, this keeps absurd values from reaching
+        ``timedelta``, which overflows and turns a bad request into a 500.
+        """
         total_seconds = self.hours * 3600 + self.minutes * 60 + self.seconds
         if total_seconds > max_schedule_seconds:
-            raise ValueError("Scheduled shipments cannot be more than 40 days into the future.")
+            raise ValueError(
+                "Scheduled shipments cannot be more than 40 days into the future."
+            )
         return self
 
 

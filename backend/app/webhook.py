@@ -5,6 +5,13 @@ from app.models import Shipment
 
 
 def fire_webhook(shipment: Shipment):
+    """POST the shipment to its webhook_url.
+
+    The payload includes the shipment ``id``, which never changes across retries,
+    so a receiver can use it to discard duplicates. Raises ``httpx.HTTPError`` if
+    the request fails or the receiver does not return a success status, which is
+    what stops a failed delivery being recorded as done.
+    """
     payload = {
         "id": str(shipment.id),
         "name": shipment.name,

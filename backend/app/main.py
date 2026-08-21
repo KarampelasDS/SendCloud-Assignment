@@ -28,6 +28,12 @@ async def validation_error_handler(request, err):
 
 @app.post("/shipments", response_model=ScheduledShipmentResponse)
 def create_shipment(payload: NewScheduledShipment, db: Session = Depends(get_db)):
+    """Store a scheduled shipment and return its id and seconds remaining.
+
+    The request carries a duration, but an absolute ``fire_at`` is what gets
+    stored, so the timer survives a restart and doesn't depend on any process
+    staying alive to count down.
+    """
     now = datetime.now(UTC)
     fire_at = now + timedelta(
         hours=payload.hours, minutes=payload.minutes, seconds=payload.seconds
@@ -56,6 +62,7 @@ def create_shipment(payload: NewScheduledShipment, db: Session = Depends(get_db)
 
 @app.get("/shipments/{id}", response_model=ScheduledShipmentResponse)
 def get_shipment(id: UUID, db: Session = Depends(get_db)):
+    """Return the seconds left on a shipment's timer, or 0 once it has passed."""
     shipment = db.get(Shipment, id)
     if shipment is None:
         return JSONResponse(

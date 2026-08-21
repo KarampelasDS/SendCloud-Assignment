@@ -10,6 +10,19 @@ from app.models import Shipment
 def claim_due_shipments(
     session: Session, now: datetime, limit: int = 100, visibility_timeout: int = 100
 ):
+    """Claim the shipments that are due to fire and mark them as processing.
+
+    Rows are locked with ``FOR UPDATE SKIP LOCKED`` so that several workers can run
+    this at the same time: each one skips rows another worker already holds instead
+    of queueing behind them, and they end up splitting the due set between them.
+
+    A shipment is claimable if it is still ``pending``, or if it is ``processing``
+    but its ``locked_at`` is older than ``visibility_timeout`` seconds. The second
+    case covers a worker that died mid delivery, and is what makes a crash
+    recoverable without any separate recovery step. Shipments that were due while
+    the service was down need no special handling either, since they are simply
+    pending rows whose ``fire_at`` has passed.
+    """
     stale_interval = now - timedelta(seconds=visibility_timeout)
     stmt = (
         select(Shipment)
@@ -40,12 +53,19 @@ def claim_due_shipments(
 
 
 def mark_done(session: Session, shipment: Shipment, now: datetime):
+    """Record that a shipment's webhook was delivered successfully."""
     shipment.status = ShipmentStatus.done
     shipment.fired_at = now
     session.commit()
 
 
 def record_failure(session: Session, shipment: Shipment, max_attempts: int):
+    """Record a failed delivery, either for retry or as a final failure.
+
+    Below ``max_attempts`` the shipment goes back to ``pending`` with its lock
+    cleared, so the next poll picks it up again. Once the attempts are used up it
+    is marked ``failed`` and left alone rather than retried forever.
+    """
     if shipment.attempts < max_attempts:
         shipment.attempts += 1
         shipment.status = ShipmentStatus.pending
