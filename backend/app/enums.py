@@ -15,7 +15,7 @@ class ShipmentShippingPreference(str, Enum):
 
 
 class ShipmentExportReason(str, Enum):
-    commercial_goods = "commercial goods"
+    commercial_goods = "commercial_goods"
     documents = "documents"
     gift = "gift"
 
