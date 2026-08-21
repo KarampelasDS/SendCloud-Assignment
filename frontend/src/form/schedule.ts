@@ -7,27 +7,24 @@ function toLocalInputValue(date: Date): string {
 }
 
 export function initSchedule(form: HTMLFormElement): void {
-  const scheduleLater = form.querySelector<HTMLInputElement>("#schedule_later");
-  const scheduleFields = form.querySelector<HTMLElement>("#schedule_fields");
   const modeRadios = form.querySelectorAll<HTMLInputElement>(
     'input[name="schedule_mode"]',
   );
-  const dateTimePicker =
-    form.querySelector<HTMLInputElement>("#schedule_datetime");
-  const scheduleSummary = form.querySelector<HTMLElement>("#schedule_summary");
-  const dateMessage = form.querySelector<HTMLElement>(
-    "#schedule_datetime_message",
-  );
+  const later = form.querySelector<HTMLInputElement>("#schedule_later");
+  const fields = form.querySelector<HTMLElement>("#schedule_fields");
+  const picker = form.querySelector<HTMLInputElement>("#schedule_datetime");
+  const summary = form.querySelector<HTMLElement>("#schedule_summary");
+  const message = form.querySelector<HTMLElement>("#schedule_datetime_message");
 
-  if (
-    !scheduleLater ||
-    !scheduleFields ||
-    !dateTimePicker ||
-    !scheduleSummary ||
-    !dateMessage
-  ) {
+  if (!later || !fields || !picker || !summary || !message) {
     return;
   }
+
+  const scheduleLater = later;
+  const scheduleFields = fields;
+  const dateTimePicker = picker;
+  const scheduleSummary = summary;
+  const dateMessage = message;
 
   function setMessage(text: string, valid: boolean) {
     dateMessage.textContent = text;
